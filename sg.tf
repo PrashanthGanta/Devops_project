@@ -66,6 +66,7 @@ module "Public_Instance_sg" {
       to_port     = 80
       protocol    = "tcp"
       cidr_blocks = "43.249.224.222/32"
+      # cidr_blocks =  module.myip.address
       description = "Ingress Rule"
     },
   ]
@@ -79,4 +80,21 @@ module "Public_Instance_sg" {
     },
   ]
 
+}
+
+resource aws_security_group allow_ssh {
+  name        = "allow_ssh"
+  description = "Allow SSH inbound connections"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    # cidr_blocks = concat(module.myip.address ,"/32"
+    # cidr_blocks = "${module.myip.address}/32"
+    # cidr_blocks = join("",[module.myip.address],["/32"])
+    cidr_blocks= var.myIp
+
+  }
 }

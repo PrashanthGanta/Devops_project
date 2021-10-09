@@ -10,9 +10,15 @@ module "vpc" {
 
   enable_nat_gateway = true
   enable_vpn_gateway = true
+  # single_nat_gateway  = true
 
   tags = {
     Terraform = "true"
     Environment = "dev"
   }
+}
+
+module myip {
+  source  = "4ops/myip/http"
+  version = "1.0.0"
 }
