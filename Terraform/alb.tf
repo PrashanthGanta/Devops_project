@@ -1,3 +1,8 @@
+## Application Load Balancer
+
+# This is load balancer for the private instances present in the private subnet
+# To access the jenkins and app server hosted on them
+# Use www.alb-domain.com/jenkins or www.alb-domain.com/app
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 6.0"
@@ -8,17 +13,14 @@ module "alb" {
 
   vpc_id             = module.vpc.vpc_id
   subnets            = [module.vpc.public_subnets[0],module.vpc.public_subnets[1]]
-  security_groups    = [module.Public_ALB_sg.security_group_id]
+  security_groups    = [module.Public_Instance_sg.security_group_id]
 
-#   access_logs = {
-#     bucket = "upgrad-assignment-m4"
-#   }
-
+  # Creating two target groups to access them individually with /jenkins and /app
   target_groups = [
     {
-      name_prefix      = "pref-"
+      name_prefix      = "jen-"
       backend_protocol = "HTTP"
-      backend_port     = 80
+      backend_port     = 8080
       target_type      = "instance"
       targets = [
         {
@@ -26,117 +28,66 @@ module "alb" {
           port = 8080
         }
       ]
+    },
+    {
+      name_prefix      = "app-"
+      backend_protocol = "HTTP"
+      backend_port     = 8080
+      target_type      = "instance"
+      targets = [
+        {
+          target_id = module.ec2_instance_app.id
+          port = 8080
+        }
+      ]
     }
+
   ]
 
-  # frontend_http_tcp =[
-    
-    #   {
-    #   https_listener_index = 0
-    #   priority             = 5000
-
-    #   actions = [{
-    #     type        = "redirect"
-    #     status_code = "HTTP_302"
-    #     host        = "www.youtube.com"
-    #     path        = "/watch"
-    #     query       = "v=dQw4w9WgXcQ"
-    #     protocol    = "HTTPS"
-    #   }]
-
-    #   conditions = [{
-    #     path_patterns = ["/onboarding", "/docs"]
-    #   }]
-    # }
-  # ]
   
   http_tcp_listeners = [
-    {
-      port               = 80
-      protocol           = "HTTP"
-      # target_group_index = 0
-      # action_type = "forward"
-      actions ={
-            type               = "forward"
-            target_group_index = 0
-          }
-      condition = {
-              path_patterns = ["/jenkins", "/jenkins*"]
-            }
-    },
+    # {
+    #   port               = 80
+    #   protocol           = "HTTP"
+    #   actions ={
+    #         type               = "forward"
+    #         target_group_index = 0
+    #       }
+    #   condition = {
+    #           path_patterns = ["/jenkins", "/jenkins*"]
+    #         }
+    # },
     {
       port = 80
       protocol = "HTTP"
       target_group_index = 0
       actions = [{
         type        = "redirect"
-        # status_code = "HTTP_302"
-        # host        = "www.youtube.com"
         path        = "/jenkins"
-        # query       = "v=dQw4w9WgXcQ"
         protocol    = "HTTP"
       }]
       conditions = [{
-        path_patterns = ["/jenkins", "/jenkins"]
+        path_patterns = ["/jenkins", "/jenkins*"]
       }]
 
     }
-    # {
-    #   https_listener_index = 0
-    #   priority             = 10
+    ,
+    {
+      port = 80
+      protocol = "HTTP"
+      target_group_index = 1
+      actions = [{
+        type        = "redirect"
+        path        = "/app"
+        protocol    = "HTTP"
+      }]
+      conditions = [{
+        path_patterns = ["/app", "/app*"]
+      }]
 
-    #   actions = [{
-    #     type        = "redirect"
-    #     path        = "/jenkins"
-    #     query       = "v=dQw4w9WgXcQ"
-    #     protocol    = "HTTP"
-    #   }]
-
-    #   conditions = [{
-    #     path_patterns = ["/jenkins", "/jenkins*"]
-    #   }]
-    # }
-
+    }
     ]
-
-  # http_tcp_listeners = [
-  #   {
-  #     port        = 8080
-  #     protocol    = "HTTP"
-  #     action_type = "redirect"
-      
-  #     redirect = {
-  #       target_group_index = 0
-  #     }
-  #     conditions = [{
-  #         path_patterns = ["/jenkins", "/jenkins*"]
-  #       }]
-  #   }
-  # ]
-
-
-  # http_tcp_listeners  = [
-  #     {
-  #       http_listener_index = 0
-  #       priority             = 1
-
-  #       actions = [{
-  #         type        = "redirect"
-  #         # status_code = "HTTP_302"
-  #         # host        = "www.youtube.com"
-  #         # path        = "/jenkins"
-  #         port               = 80
-  #         protocol           = "HTTP"
-  #         target_group_index = 0
-  #       }]
-
-  #       conditions = [{
-  #         path_patterns = ["/jenkins", "/jenkins/*"]
-  #       }]
-  #     },
-      
-  #   ]
-  
+ 
   tags = {
     Environment = "Test"
   }

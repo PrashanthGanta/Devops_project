@@ -7,6 +7,7 @@ terraform {
   }
 }
 
+# intialising S3 bucket to use it for storing terraform statefile
 terraform {
   backend "s3"{
     bucket = "upgrad-assignment-m4"
@@ -16,6 +17,6 @@ terraform {
 }
 
 provider "aws" {
-  # Configuration options
+  # Configuration options to use which reagion to be used
   region = "us-east-1"
 }
