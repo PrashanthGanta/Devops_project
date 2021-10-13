@@ -9,8 +9,6 @@ module "ec2_instance_Bastion" {
   key_name               = "RHEL"
   monitoring             = true
   vpc_security_group_ids = [module.Bastion_service_sg.security_group_id, module.Public_Instance_sg.security_group_id]
-  # subnet_id              = "subnet-eddcdzz4"
-  # subnet_id              = aws_subnet.public.[0].ID
   subnet_id               = module.vpc.public_subnets[0]
 
   tags = {
@@ -20,6 +18,7 @@ module "ec2_instance_Bastion" {
 }
 
 module "ec2_instance_Jenkins" {
+  depends_on = [module.vpc]
   source  = "./modules/terraform-aws-ec2-instance"
   # version = "~> 3.0"
 
@@ -30,8 +29,6 @@ module "ec2_instance_Jenkins" {
   key_name               = "RHEL"
   monitoring             = true
   vpc_security_group_ids = [module.Private_Instance_sg.security_group_id]
-  # subnet_id              = "subnet-eddcdzz4"
-  # subnet_id              = aws_subnet.public.[0].ID
   subnet_id               = module.vpc.private_subnets[0]
 
   tags = {
@@ -41,6 +38,7 @@ module "ec2_instance_Jenkins" {
 }
 
 module "ec2_instance_app" {
+  depends_on = [module.vpc]
   source  = "./modules/terraform-aws-ec2-instance"
   # version = "~> 3.0"
 
@@ -51,8 +49,6 @@ module "ec2_instance_app" {
   key_name               = "RHEL"
   monitoring             = true
   vpc_security_group_ids = [module.Public_Instance_sg.security_group_id]
-  # subnet_id              = "subnet-eddcdzz4"
-  # subnet_id              = aws_subnet.public.[0].ID
   subnet_id               = module.vpc.private_subnets[0]
 
   tags = {

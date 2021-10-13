@@ -9,10 +9,19 @@ module "vpc" {
   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
 
   enable_nat_gateway = true
-  enable_vpn_gateway = true
+  # enable_vpn_gateway = true
+  single_nat_gateway  = true
+
+  create_igw = true
 
   tags = {
     Terraform = "true"
     Environment = "dev"
   }
 }
+
+module myip {
+  source  = "4ops/myip/http"
+  version = "1.0.0"
+}
+
