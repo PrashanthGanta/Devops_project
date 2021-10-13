@@ -25,6 +25,3 @@ module myip {
   version = "1.0.0"
 }
 
-data "http" "myip" {
-  url = "http://ipv4.icanhazip.com"
-}
