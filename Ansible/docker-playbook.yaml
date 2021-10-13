@@ -1,9 +1,6 @@
 ---
 - hosts: all
   become: true
-  vars_files:
-    - vars/default.yml
-
   tasks:
     - name: Install aptitude using apt
       apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
@@ -28,3 +25,6 @@
     - name: Install Docker Module for Python
       pip:
         name: docker
+
+    - name: ensure docker is running
+      service: name=docker state=started
